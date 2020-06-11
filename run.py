@@ -8,18 +8,11 @@ from flask import Flask, jsonify, request
 from concurrent.futures import ProcessPoolExecutor
 from finding_utils import FindCodingTable
 from translation_utils import SemanticTranslator
-from gen_logger import get_logger
-from database import get_conn
 
 # 添加以下代码，以防止中文显示为"???"
 import os
 os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
 ###
-trans_logger = get_logger('trans', 1)
-
-ori_conn, tar_conn = get_conn()
-assert ori_conn is not None, 'Must specify an available database for original database/system'
-assert tar_conn is not None, 'Must specify an available database for target database/system'
 
 app = Flask(__name__)
 
@@ -34,7 +27,7 @@ def translate_to_semantic():
             "value": {
                 "table": <"待转换的表名称">,
                 "column": <"待转换的表的字段">,
-                "value": <"待转换字段下的值" or "">
+                "value": <"待转换字段下的值">
             }
         }
 
@@ -42,7 +35,10 @@ def translate_to_semantic():
     """
     json = request.json
     tab, col, val = list(json['value'].values())
-    translator = SemanticTranslator(ori_conn, trans_logger)
+    for i in [tab, col, val]:
+        if not i:
+            return jsonify({'state': 0, 'msg': 'Invalid parameters'})
+    translator = SemanticTranslator()
     res = translator.translate(tab, col, val)
     return jsonify(res)
 
@@ -56,4 +52,4 @@ def find_coding_table():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
