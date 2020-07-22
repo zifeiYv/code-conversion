@@ -19,12 +19,17 @@ coded_logger = get_logger('coded', 1)
 
 
 class FindCodingTable:
+    """定义一个用于发现编码规则的类"""
     def __init__(self):
         self.db_type = ori_db_type
         self.db_name = ori_db
         self.logger = coded_logger
 
     def find_coding_table(self):
+        """提供两种途径来抽取编码值的映射信息
+        1:基于正则表达式，从注释信息中提取
+        2:基于字典表与其他表的引用关系（未完成）
+        """
         if USE_RE:
             self.logger.info(">>>Using regular expresion to extract mapping...")
             self.__extract_from_comments()
@@ -34,6 +39,7 @@ class FindCodingTable:
         self.__callback()
 
     def __extract_from_comments(self):
+        """从字段的注释信息中提取编码值的含义信息，目前支持oracle和mysql两种数据库"""
         self.logger.info(f'   Extracting process ID: {os.getpid()}')
         if self.db_type.upper() == 'ORACLE':
             self.logger.info("   An oracle database found")
@@ -103,6 +109,7 @@ class FindCodingTable:
 
     @staticmethod
     def __findall(string):
+        """给定一个字符串，利用正则表达式发现其中所有符合要求的内容"""
         expn = {}
         from regexes import patterns
         for p in patterns:
@@ -114,6 +121,7 @@ class FindCodingTable:
 
     @staticmethod
     def __insert_into_db(res):
+        """将映射规则写入数据库"""
         sqlite_conn = sqlite3.connect(sqlite_db)
         cr = sqlite_conn.cursor()
         # 由于`sqlite3.connect()`没有实现上下文管理，因此不能用`with`
@@ -125,4 +133,5 @@ class FindCodingTable:
 
     @staticmethod
     def __callback():
+        """完成后请求"""
         requests.get(finish_url)

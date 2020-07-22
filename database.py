@@ -14,6 +14,13 @@ tar_db_type = db_info['tar_db_info']['type']
 
 
 def get_conn():
+    """根据配置文件中的信息，获取两个连接对象。
+
+    Returns:
+        ori_conn: 待转换的编码值所在的数据库
+        tar_conn: 目标值所在的数据库，如果与ori_conn相同，则说明是同系统转换（编码值->业务含义）
+
+    """
     if ori_db_info['type'].upper() == 'ORACLE':
         import cx_Oracle
         info = ori_db_info['info']
