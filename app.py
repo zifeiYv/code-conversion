@@ -37,7 +37,7 @@ def translate_to_semantic():
     tab, col, val = list(json['value'].values())
     for i in [tab, col, val]:
         if not i:
-            return jsonify({'state': 0, 'msg': 'Invalid parameters'})
+            return jsonify({'state': 0, 'msg': '非法的参数'})
     translator = SemanticTranslator()
     res = translator.translate(tab, col, val)
     return jsonify(res)

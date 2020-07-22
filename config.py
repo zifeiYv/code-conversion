@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-@Statement: Sorry for this shit code 
-@Time     : 2020/5/26 10:55
-@Author   : Jarvis
+@Time   : 2020/6/9 5:06 下午
+@Author : sunjiawei
+@E-mail : j.w.sun1992@gmail.com
 """
 db_info = {
     "ori_db_info": {

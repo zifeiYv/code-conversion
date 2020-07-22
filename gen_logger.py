@@ -20,7 +20,8 @@ def get_logger(log_file_name, console_print=False):
     if not logger.handlers:  # 避免重复添加handler
         console = StreamHandler()
         handler = RotatingFileHandler(log_file_name, maxBytes=2*1024*1024, backupCount=5)
-        formatter = logging.Formatter("%(asctime)s %(filename)15s %(lineno)4s %(levelname)7s| %(message)s ",
+        formatter = logging.Formatter("%(asctime)s %(filename)15s %(lineno)4s"
+                                      " %(levelname)7s| %(message)s ",
                                       datefmt='%Y-%m-%d %H:%M:%S')
         handler.setFormatter(formatter)
         console.setFormatter(formatter)

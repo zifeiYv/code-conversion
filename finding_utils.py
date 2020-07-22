@@ -33,60 +33,6 @@ class FindCodingTable:
             # todo: add other method to find mapping rules
         self.__callback()
 
-    # def __calc_rel(self, tab_columns: dict):
-    #     if self.db_type.upper() == 'ORACLE':
-    #         all_cols = set()
-    #         for i in tab_columns.values():
-    #             all_cols = all_cols.union(set(i))
-    #         tab_counts = {}
-    #         counter = 1
-    #         with ori_conn.cursor() as cr:
-    #             for tab in tab_columns:
-    #                 print(counter / len(tab_columns))
-    #                 counter += 1
-    #                 for col in tab_columns[tab]:
-    #                     sql = f"select {col} from {tab}"
-    #                     try:
-    #                         cr.execute(sql)
-    #                         values = set(map(lambda x: x[0], cr.fetchall()))
-    #                     except:
-    #                         continue
-    #                     if not values.intersection(all_cols):
-    #                         continue
-    #                     else:
-    #                         tab_counts[tab] = [col, len(values.intersection(all_cols))]
-    #
-    #     pass
-    #
-    # def __get_all_tab_columns(self):
-    #     tab_columns = {}
-    #     if self.db_type.upper() == 'ORACLE':
-    #         with ori_conn.cursor() as cr:
-    #             cr.execute("select table_name,column_name from user_tab_columns order by table_name")
-    #             res = cr.fetchall()
-    #             if res:
-    #                 for i in res:
-    #                     if i[0] not in tab_columns:
-    #                         tab_columns[i[0]] = [i[1]]
-    #                     else:
-    #                         tab_columns[i[0]].append(i[1])
-    #             return tab_columns
-    #     elif self.db_type.upper() == 'MYSQL':
-    #         with ori_conn.cursor() as cr:
-    #             cr.execute(f"select table_name, column_name from information_schema.columns "
-    #                        f"where table_schema='{self.db_name}' order by table_name ")
-    #             res = cr.fetchall()
-    #             if res:
-    #                 for i in res:
-    #                     if i[0] not in tab_columns:
-    #                         tab_columns[i[0]] = [i[1]]
-    #                     else:
-    #                         tab_columns[i[0]].append(i[1])
-    #             return tab_columns
-    #     else:
-    #         # todo: add more database support
-    #         return tab_columns
-
     def __extract_from_comments(self):
         self.logger.info(f'   Extracting process ID: {os.getpid()}')
         if self.db_type.upper() == 'ORACLE':
@@ -129,7 +75,8 @@ class FindCodingTable:
             res = []
             with ori_conn.cursor() as cr:
                 self.logger.info("   Getting the column comments...")
-                cr.execute(f"select table_name, column_name, column_comment from information_schema.columns "
+                cr.execute(f"select table_name, column_name, column_comment from "
+                           f"information_schema.columns "
                            f"where table_schema='{self.db_name}' order by table_name, column_name ")
                 self.logger.info("   Done")
                 self.logger.info("   Extracting mapping information...")
@@ -169,8 +116,9 @@ class FindCodingTable:
     def __insert_into_db(res):
         sqlite_conn = sqlite3.connect(sqlite_db)
         cr = sqlite_conn.cursor()
-        # Since `sqlite3.connect()` doesn't achieve context management, you cannot use `with` statement directly
-        sql = "insert into virtual_coding_table (tab_name, column, value, explain) values (?, ?, ?, ?)"
+        # 由于`sqlite3.connect()`没有实现上下文管理，因此不能用`with`
+        sql = "insert into virtual_coding_table (tab_name, column, value, explain) " \
+              "values (?, ?, ?, ?)"
         cr.executemany(sql, res)
         sqlite_conn.commit()
         sqlite_conn.close()

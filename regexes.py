@@ -4,9 +4,7 @@
 @Author : sunjiawei
 @E-mail : j.w.sun1992@gmail.com
 """
-# Use Regular Expression to match specific parts in fields' comments which
-# may contain explanation of its values. The effect depends on the generality
-# of the regular expression(s).
+# 如果字段的注释中存在该字段取值含义的内容，则使用正则表达式来进行匹配
 #
 
 import re
