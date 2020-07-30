@@ -23,18 +23,16 @@ executor = ProcessPoolExecutor(1)
 def translate_to_semantic():
     """单系统编码值向标准语义转换，即解释编码值
         入参格式：
-        {
-            "value": {
-                "table": <"待转换的表名称">,
-                "column": <"待转换的表的字段">,
-                "value": <"待转换字段下的值">
-            }
+        "value": {
+            "table": <"待转换的表名称">,
+            "column": <"待转换的表的字段">,
+            "value": <"待转换字段下的值">
         }
 
     :return: A jsonify dict.
     """
     json = request.json
-    tab, col, val = list(json['value'].values())
+    tab, col, val = list(json.values())
     for i in [tab, col, val]:
         if not i:
             return jsonify({'state': 0, 'msg': '非法的参数'})
