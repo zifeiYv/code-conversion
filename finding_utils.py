@@ -31,33 +31,33 @@ class FindCodingTable:
         2:基于字典表与其他表的引用关系（未完成）
         """
         if USE_RE:
-            self.logger.info(">>>Using regular expresion to extract mapping...")
+            self.logger.info(">>>使用正则表达式来进行映射信息抽取...")
             self.__extract_from_comments()
         else:
-            self.logger.info(">>>Can't extract mapping now")
+            self.logger.info(">>>暂时不支持正则表达式之外的映射信息抽取方式")
             # todo: add other method to find mapping rules
         self.__callback()
 
     def __extract_from_comments(self):
         """从字段的注释信息中提取编码值的含义信息，目前支持oracle和mysql两种数据库"""
-        self.logger.info(f'   Extracting process ID: {os.getpid()}')
+        self.logger.info(f'   进程ID: {os.getpid()}')
         if self.db_type.upper() == 'ORACLE':
-            self.logger.info("   An oracle database found")
+            self.logger.info("   Oracle数据源")
             res = []
             with ori_conn.cursor() as cr:
-                self.logger.info("   Getting the column comments...")
+                self.logger.info("   抽取注释信息...")
                 try:
                     cr.execute(f"select * from user_col_comments")
                 except Exception as e:
                     self.logger.error(f"   {e}")
-                    self.logger.error("<<<Failed")
+                    self.logger.error("<<<失败")
                     return
-                self.logger.info("   Done")
-                self.logger.info("   Extracting mapping information...")
+                self.logger.info("   完成")
+                self.logger.info("   抽取映射信息...")
                 comments = cr.fetchall()
                 if not comments:
-                    self.logger.error("   ERROR:No available information in `user_col_comments`")
-                    self.logger.error("<<<Failed")
+                    self.logger.error("   ERROR:在`user_col_comments`中未发现有用信息")
+                    self.logger.error("<<<失败")
                     return
                 for i in comments:
                     if not i[2]:  # have no comments
@@ -67,25 +67,25 @@ class FindCodingTable:
                         for j in expn:
                             res.append([i[0], i[1], j, expn[j]])
             if not res:
-                self.logger.warning("   Find nothing available")
-                self.logger.warning("<<<Finished")
+                self.logger.warning("   未发现可用信息")
+                self.logger.warning("<<<完成")
                 return
-            self.logger.info("   Done")
-            self.logger.info("   Inserting mapping information into sqlite...")
+            self.logger.info("   完成")
+            self.logger.info("   保存映射信息...")
             self.__insert_into_db(res)
-            self.logger.info("   Done")
-            self.logger.info("<<<Finished")
+            self.logger.info("   完成")
+            self.logger.info("<<<完成")
             return
         elif self.db_type.upper() == 'MYSQL':
-            self.logger.info("   A mysql database found")
+            self.logger.info("   MySQL数据源")
             res = []
             with ori_conn.cursor() as cr:
-                self.logger.info("   Getting the column comments...")
+                self.logger.info("   抽取注释信息...")
                 cr.execute(f"select table_name, column_name, column_comment from "
                            f"information_schema.columns "
                            f"where table_schema='{self.db_name}' order by table_name, column_name ")
-                self.logger.info("   Done")
-                self.logger.info("   Extracting mapping information...")
+                self.logger.info("   完成")
+                self.logger.info("   抽取映射信息...")
                 for i in cr.fetchall():
                     if not i[2]:
                         continue
@@ -94,14 +94,14 @@ class FindCodingTable:
                         for j in expn:
                             res.append([i[0], i[1], j, expn[j]])
             if not res:
-                self.logger.info("   Find nothing available")
-                self.logger.warning("<<<Finished")
+                self.logger.info("   未发现可用信息")
+                self.logger.warning("<<<完成")
                 return
-            self.logger.info("   Done")
-            self.logger.info("   Inserting mapping information into sqlite...")
+            self.logger.info("   完成")
+            self.logger.info("   保存映射信息...")
             self.__insert_into_db(res)
-            self.logger.info("   Done")
-            self.logger.info("<<<Finished")
+            self.logger.info("   完成")
+            self.logger.info("<<<完成")
             return
         else:
             # todo: add more database support

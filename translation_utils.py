@@ -36,7 +36,7 @@ class SemanticTranslator:
         虚拟表指的是存储从注释中提取的编码映射规则信息的表，是相对于物理表而言的。
         """
         executor = ThreadPoolExecutor(max_workers=2)
-        self.logger.info(">>>Start translating...")
+        self.logger.info(">>>开始转换...")
         # 向第一个线程中提交从虚拟表中获取翻译结果的任务
         f1 = executor.submit(self.__trans_from_virtual, table, col, val)
         # 向第二个线程中提交从物理表中获取翻译结果的任务
@@ -48,16 +48,16 @@ class SemanticTranslator:
         #   -1: 翻译失败，返回原始值
         #    0: 翻译失败，返回None
         #    1: 翻译成功，返回翻译后的值
-        self.logger.info("   Merge all results together...")
+        self.logger.info("   融合转换结果...")
         res = self.__merge(dict1, dict2)
-        self.logger.info("<<<Finished")
+        self.logger.info("<<<完成")
         return res
 
     def __trans_from_physical(self, table, col, val):
         """基于物理表，对给定的数据尝试进行翻译"""
-        self.logger.info("   PHY: Translating from `mapping_detail`...")
+        self.logger.info("   PHY: 从`mapping_detail`表进行转换...")
         val_ = self.__phy_single_trans(table, col, val)
-        self.logger.info("   PHY: Done")
+        self.logger.info("   PHY: 完成")
         if val_ is None:
             return {'state': 0, 'msg': 'Translation failed, return nothing', 'value': None}
         elif val_ == val:
@@ -67,9 +67,9 @@ class SemanticTranslator:
 
     def __trans_from_virtual(self, table, col, val):
         """基于虚拟表，对给定的数据尝试进行翻译"""
-        self.logger.info("   VIR: Translation from `virtual_coding_table`...")
+        self.logger.info("   VIR: 从`virtual_coding_table`表进行转换...")
         val_ = self.__vir_single_trans(table, col, val)
-        self.logger.info("   VIR: Done")
+        self.logger.info("   VIR: 完成")
         if val_ is None:
             return {'state': 0, 'msg': 'Translation failed, return nothing', 'value': None}
         elif val_ == val:
